@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Học Tập: Lược Sử Công Cụ Tính Toán</title>
+    <!-- Google Fonts: Nunito for rounded, friendly look -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-yellow': '#FDE68A', // Vàng nhạt
+                        'brand-blue': '#1E3A8A',   // Xanh đậm
+                        'brand-pink': '#DB2777',   // Hồng đậm
+                        'brand-bg': '#FFFBEB',     // Nền kem
+                    },
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #FFFBEB; /* brand-bg */
+            color: #1E3A8A; /* brand-blue */
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #DB2777;
+            border-radius: 4px;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Interactive Elements */
+        .clickable-item {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .clickable-item:active {
+            transform: scale(0.95);
+        }
+        .selected-item {
+            ring-width: 4px;
+            ring-color: #DB2777;
+            transform: scale(1.05);
+            background-color: #FCE7F3;
+        }
+
+        /* Grading States */
+        .correct-box {
+            border: 4px solid #10B981 !important; /* Green */
+            background-color: #D1FAE5;
+        }
+        .wrong-box {
+            border: 4px solid #EF4444 !important; /* Red */
+            background-color: #FEE2E2;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- SCREEN 1: START SCREEN -->
+    <div id="start-screen" class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-brand-yellow fade-in relative">
+        <div class="bg-brand-yellow p-6 text-center border-b-4 border-brand-pink">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-brand-blue uppercase tracking-wide">
+                <i class="fas fa-calculator mr-2"></i> Lược sử công cụ tính toán
+            </h1>
+            <p class="text-brand-pink font-bold mt-2 text-lg">Tin học 6 - Chủ đề 1</p>
+        </div>
+        
+        <div class="p-8 md:p-12 flex flex-col items-center space-y-6">
+            <div class="w-full max-w-md space-y-4">
+                <div>
+                    <label class="block text-brand-blue font-bold mb-2 text-lg">Họ và Tên học sinh</label>
+                    <input type="text" id="student-name" class="w-full p-4 rounded-xl border-2 border-brand-blue focus:outline-none focus:ring-4 focus:ring-brand-pink text-lg" placeholder="Nhập họ tên của em...">
+                </div>
+                <div>
+                    <label class="block text-brand-blue font-bold mb-2 text-lg">Lớp</label>
+                    <input type="text" id="student-class" class="w-full p-4 rounded-xl border-2 border-brand-blue focus:outline-none focus:ring-4 focus:ring-brand-pink text-lg" placeholder="Ví dụ: 6A1">
+                </div>
+            </div>
+
+            <div class="bg-blue-50 p-4 rounded-xl text-center w-full max-w-lg border-2 border-dashed border-brand-blue">
+                <p class="font-bold text-brand-pink mb-1"><i class="fas fa-clock"></i> Thời gian: 20-25 phút</p>
+                <p class="text-sm">Hãy hoàn thành 5 câu hỏi để đạt 20 điểm tối đa!</p>
+            </div>
+
+            <button onclick="startQuiz()" class="bg-brand-pink hover:bg-pink-700 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl w-full max-w-xs">
+                BẮT ĐẦU LÀM BÀI <i class="fas fa-play ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: QUIZ CONTENT -->
+    <div id="quiz-screen" class="hidden w-full max-w-5xl space-y-6 pb-12">
+        
+        <!-- Header Info -->
+        <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-md border-2 border-brand-blue sticky top-2 z-10">
+            <div class="font-bold text-lg text-brand-blue">
+                <i class="fas fa-user-graduate mr-2"></i> <span id="display-name">Học sinh</span>
+            </div>
+            <div class="bg-brand-pink text-white px-4 py-1 rounded-full font-bold">
+                <i class="fas fa-star mr-1"></i> Điểm tối đa: 20
+            </div>
+        </div>
+
+        <!-- Question 1: Drag & Drop (Click & Place) -->
+        <div id="q1-container" class="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden fade-in">
+            <div class="bg-blue-100 p-4 border-b-2 border-blue-200">
+                <h2 class="font-extrabold text-xl text-brand-blue">Câu 1. Sắp xếp lịch sử (4 điểm)</h2>
+                <p class="text-sm text-gray-700 mt-1">Chọn một công cụ ở trên, sau đó bấm vào ô giai đoạn tương ứng bên dưới để xếp.</p>
+            </div>
+            <div class="p-6">
+                <!-- Source Items -->
+                <div id="q1-source" class="flex flex-wrap gap-3 justify-center mb-8 min-h-[60px]">
+                    <div class="q1-item bg-yellow-200 border-2 border-yellow-400 text-brand-blue font-bold py-2 px-4 rounded-lg shadow-sm cursor-pointer hover:bg-yellow-300" onclick="selectQ1Item(this, 'Bàn tính')">Bàn tính</div>
+                    <div class="q1-item bg-yellow-200 border-2 border-yellow-400 text-brand-blue font-bold py-2 px-4 rounded-lg shadow-sm cursor-pointer hover:bg-yellow-300" onclick="selectQ1Item(this, 'Pascaline')">Máy tính cơ học Pascaline</div>
+                    <div class="q1-item bg-yellow-200 border-2 border-yellow-400 text-brand-blue font-bold py-2 px-4 rounded-lg shadow-sm cursor-pointer hover:bg-yellow-300" onclick="selectQ1Item(this, 'ENIAC')">Máy tính điện tử ENIAC</div>
+                    <div class="q1-item bg-yellow-200 border-2 border-yellow-400 text-brand-blue font-bold py-2 px-4 rounded-lg shadow-sm cursor-pointer hover:bg-yellow-300" onclick="selectQ1Item(this, 'IC')">Máy tính mạch tích hợp (IC)</div>
+                </div>
+
+                <!-- Drop Zones -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Zone 1 -->
+                    <div class="bg-gray-50 rounded-xl border-2 border-dashed border-gray-400 p-4 text-center min-h-[120px] relative" onclick="placeQ1Item(this, 'early')">
+                        <span class="text-gray-400 font-bold text-sm block mb-2 uppercase">Công cụ ban đầu</span>
+                        <div class="placed-content text-brand-pink font-bold text-lg"></div>
+                    </div>
+                    <!-- Zone 2 -->
+                    <div class="bg-gray-50 rounded-xl border-2 border-dashed border-gray-400 p-4 text-center min-h-[120px] relative" onclick="placeQ1Item(this, 'mech')">
+                        <span class="text-gray-400 font-bold text-sm block mb-2 uppercase">Máy tính cơ học</span>
+                        <div class="placed-content text-brand-pink font-bold text-lg"></div>
+                    </div>
+                    <!-- Zone 3 -->
+                    <div class="bg-gray-50 rounded-xl border-2 border-dashed border-gray-400 p-4 text-center min-h-[120px] relative" onclick="placeQ1Item(this, 'gen1')">
+                        <span class="text-gray-400 font-bold text-sm block mb-2 uppercase">Thế hệ thứ nhất</span>
+                        <div class="placed-content text-brand-pink font-bold text-lg"></div>
+                    </div>
+                    <!-- Zone 4 -->
+                    <div class="bg-gray-50 rounded-xl border-2 border-dashed border-gray-400 p-4 text-center min-h-[120px] relative" onclick="placeQ1Item(this, 'gen3')">
+                        <span class="text-gray-400 font-bold text-sm block mb-2 uppercase">Thế hệ thứ ba</span>
+                        <div class="placed-content text-brand-pink font-bold text-lg"></div>
+                    </div>
+                </div>
+                <button onclick="resetQ1()" class="mt-4 text-sm text-gray-500 underline hover:text-brand-pink"><i class="fas fa-undo"></i> Làm lại câu này</button>
+            </div>
+        </div>
+
+        <!-- Question 2: Matching (Click Pair) -->
+        <div id="q2-container" class="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden fade-in">
+            <div class="bg-blue-100 p-4 border-b-2 border-blue-200">
+                <h2 class="font-extrabold text-xl text-brand-blue">Câu 2. Nối đặc điểm (4 điểm)</h2>
+                <p class="text-sm text-gray-700 mt-1">Bấm vào 1 ô ở cột TRÁI, sau đó bấm vào ô tương ứng ở cột PHẢI để nối.</p>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+                <!-- Left Column -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-center text-brand-pink mb-2">THẾ HỆ</h3>
+                    <button class="q2-left w-full p-3 border-2 border-brand-blue rounded-lg bg-white hover:bg-blue-50 text-left font-semibold transition" onclick="selectQ2Left(this, 1)">1. Thế hệ thứ nhất</button>
+                    <button class="q2-left w-full p-3 border-2 border-brand-blue rounded-lg bg-white hover:bg-blue-50 text-left font-semibold transition" onclick="selectQ2Left(this, 2)">2. Thế hệ thứ hai</button>
+                    <button class="q2-left w-full p-3 border-2 border-brand-blue rounded-lg bg-white hover:bg-blue-50 text-left font-semibold transition" onclick="selectQ2Left(this, 3)">3. Thế hệ thứ ba</button>
+                    <button class="q2-left w-full p-3 border-2 border-brand-blue rounded-lg bg-white hover:bg-blue-50 text-left font-semibold transition" onclick="selectQ2Left(this, 4)">4. Thế hệ thứ tư</button>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-center text-brand-pink mb-2">CÔNG NGHỆ</h3>
+                    <button class="q2-right w-full p-3 border-2 border-gray-300 text-gray-600 rounded-lg bg-white hover:bg-gray-50 text-left text-sm font-semibold transition" onclick="selectQ2Right(this, 'vacuum')">A. Đèn điện tử chân không</button>
+                    <button class="q2-right w-full p-3 border-2 border-gray-300 text-gray-600 rounded-lg bg-white hover:bg-gray-50 text-left text-sm font-semibold transition" onclick="selectQ2Right(this, 'transistor')">B. Bóng bán dẫn</button>
+                    <button class="q2-right w-full p-3 border-2 border-gray-300 text-gray-600 rounded-lg bg-white hover:bg-gray-50 text-left text-sm font-semibold transition" onclick="selectQ2Right(this, 'ic')">C. Mạch tích hợp (IC)</button>
+                    <button class="q2-right w-full p-3 border-2 border-gray-300 text-gray-600 rounded-lg bg-white hover:bg-gray-50 text-left text-sm font-semibold transition" onclick="selectQ2Right(this, 'vlsi')">D. Mạch tích hợp cỡ lớn (VLSI)</button>
+                </div>
+            </div>
+             <div class="px-6 pb-4">
+                 <button onclick="resetQ2()" class="text-sm text-gray-500 underline hover:text-brand-pink"><i class="fas fa-undo"></i> Làm lại câu này</button>
+             </div>
+        </div>
+
+        <!-- Question 3: Multiple Choice -->
+        <div id="q3-container" class="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden fade-in">
+            <div class="bg-blue-100 p-4 border-b-2 border-blue-200">
+                <h2 class="font-extrabold text-xl text-brand-blue">Câu 3. Trắc nghiệm (4 điểm)</h2>
+            </div>
+            <div class="p-6">
+                <p class="font-bold text-lg mb-4">Bộ xử lí là "linh kiện" chính của máy tính được chế tạo dựa trên công nghệ nào?</p>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-yellow-50 transition">
+                        <input type="radio" name="q3" value="A" class="w-5 h-5 text-brand-pink focus:ring-brand-pink">
+                        <span class="ml-3 font-medium">A. Đèn điện tử chân không</span>
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-yellow-50 transition">
+                        <input type="radio" name="q3" value="B" class="w-5 h-5 text-brand-pink focus:ring-brand-pink">
+                        <span class="ml-3 font-medium">B. Linh kiện bán dẫn đơn giản</span>
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-yellow-50 transition">
+                        <input type="radio" name="q3" value="C" class="w-5 h-5 text-brand-pink focus:ring-brand-pink">
+                        <span class="ml-3 font-medium">C. Mạch tích hợp cỡ vừa</span>
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-yellow-50 transition">
+                        <input type="radio" name="q3" value="D" class="w-5 h-5 text-brand-pink focus:ring-brand-pink">
+                        <span class="ml-3 font-medium">D. Mạch tích hợp cỡ lớn, gồm hàng chục nghìn đến hàng triệu linh kiện</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question 4: True/False -->
+        <div id="q4-container" class="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden fade-in">
+            <div class="bg-blue-100 p-4 border-b-2 border-blue-200">
+                <h2 class="font-extrabold text-xl text-brand-blue">Câu 4. Đúng / Sai (4 điểm)</h2>
+            </div>
+            <div class="p-6">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b-2 border-brand-blue">
+                            <th class="py-2 text-brand-blue">Phát biểu</th>
+                            <th class="py-2 w-20 text-center text-brand-pink">Đúng</th>
+                            <th class="py-2 w-20 text-center text-brand-blue">Sai</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <!-- Item 1 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 pr-2">1. Máy tính cơ học Pascaline được Blaise Pascal chế tạo để hỗ trợ tính thuế.</td>
+                            <td class="text-center"><input type="radio" name="q4_1" value="true" class="w-5 h-5"></td>
+                            <td class="text-center"><input type="radio" name="q4_1" value="false" class="w-5 h-5"></td>
+                        </tr>
+                        <!-- Item 2 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 pr-2">2. Máy tính thế hệ thứ hai sử dụng mạch tích hợp (IC).</td>
+                            <td class="text-center"><input type="radio" name="q4_2" value="true" class="w-5 h-5"></td>
+                            <td class="text-center"><input type="radio" name="q4_2" value="false" class="w-5 h-5"></td>
+                        </tr>
+                        <!-- Item 3 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 pr-2">3. Máy tính thế hệ thứ năm có khả năng xử lí thông tin gần giống con người.</td>
+                            <td class="text-center"><input type="radio" name="q4_3" value="true" class="w-5 h-5"></td>
+                            <td class="text-center"><input type="radio" name="q4_3" value="false" class="w-5 h-5"></td>
+                        </tr>
+                        <!-- Item 4 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 pr-2">4. ENIAC là máy tính sử dụng bóng bán dẫn.</td>
+                            <td class="text-center"><input type="radio" name="q4_4" value="true" class="w-5 h-5"></td>
+                            <td class="text-center"><input type="radio" name="q4_4" value="false" class="w-5 h-5"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Question 5: Scenario -->
+        <div id="q5-container" class="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden fade-in">
+            <div class="bg-blue-100 p-4 border-b-2 border-blue-200">
+                <h2 class="font-extrabold text-xl text-brand-blue">Câu 5. Tình huống (4 điểm)</h2>
+            </div>
+            <div class="p-6">
+                <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-4">
+                    <p class="font-bold text-gray-700">Tình huống:</p>
+                    <p class="italic text-gray-600">Trong học tập hiện nay, học sinh thường xuyên sử dụng máy tính và Internet.</p>
+                </div>
+                <label class="block font-bold text-brand-blue mb-2">Nêu 2 ví dụ cụ thể cho thấy máy tính thay đổi cách học tập:</label>
+                <textarea id="q5-answer" class="w-full h-32 p-4 rounded-xl border-2 border-gray-300 focus:border-brand-pink focus:ring-1 focus:ring-brand-pink transition" placeholder="Ví dụ: Học trực tuyến thay vì đến lớp..."></textarea>
+                <p class="text-xs text-gray-400 mt-2 text-right">Gợi ý: Hãy viết đầy đủ câu, có ít nhất 2 ý.</p>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center pt-6">
+            <button onclick="submitQuiz()" class="bg-brand-pink hover:bg-pink-700 text-white text-2xl font-extrabold py-4 px-16 rounded-full shadow-2xl transform transition hover:scale-105">
+                CHẤM ĐIỂM <i class="fas fa-check-circle ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: RESULT MODAL -->
+    <div id="result-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl transform scale-95 transition-transform" id="result-content">
+            <div class="bg-brand-blue p-6 text-center">
+                <h2 class="text-3xl font-extrabold text-yellow-300">KẾT QUẢ</h2>
+            </div>
+            <div class="p-8 text-center space-y-4">
+                <div class="text-lg font-bold text-gray-600">
+                    <span id="res-name">Nguyễn Văn A</span> - <span id="res-class">6A</span>
+                </div>
+                
+                <div class="py-4">
+                    <span class="text-6xl font-extrabold text-brand-pink" id="res-score">0</span>
+                    <span class="text-2xl text-gray-400 font-bold">/ 20</span>
+                </div>
+
+                <div class="bg-gray-100 rounded-xl p-4">
+                    <p class="text-gray-700 font-bold">Số câu đúng tuyệt đối:</p>
+                    <p class="text-2xl text-brand-blue font-extrabold" id="res-correct-count">0/5</p>
+                </div>
+
+                <div id="res-message" class="text-xl font-bold text-brand-pink animate-pulse">
+                    <!-- Message here -->
+                </div>
+
+                <button onclick="closeModal()" class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-full">
+                    Xem lại bài làm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        let currentQ1Selection = null; // { element, text }
+        let q1Answers = { early: null, mech: null, gen1: null, gen3: null }; // Mapping ZoneID -> ItemText
+        
+        let currentQ2Left = null; // ID (1,2,3,4)
+        let q2Matches = {}; // { 1: 'vacuum', 2: null... }
+        const q2Colors = ['bg-red-100', 'bg-blue-100', 'bg-green-100', 'bg-purple-100'];
+        const q2BorderColors = ['border-red-400', 'border-blue-400', 'border-green-400', 'border-purple-400'];
+
+        // --- NAVIGATION ---
+        function startQuiz() {
+            const name = document.getElementById('student-name').value.trim();
+            const className = document.getElementById('student-class').value.trim();
+
+            if (!name || !className) {
+                alert("Vui lòng nhập đầy đủ Họ tên và Lớp để bắt đầu!");
+                return;
+            }
+
+            document.getElementById('display-name').innerText = `${name} - ${className}`;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        // --- QUESTION 1 LOGIC (CLICK & PLACE) ---
+        function selectQ1Item(el, itemText) {
+            // Remove selection from others
+            document.querySelectorAll('.q1-item').forEach(i => {
+                i.classList.remove('bg-brand-pink', 'text-white', 'scale-105');
+                i.classList.add('bg-yellow-200', 'text-brand-blue');
+            });
+
+            // If already placed, don't select
+            if (el.classList.contains('opacity-50')) return;
+
+            // Highlight current
+            el.classList.remove('bg-yellow-200', 'text-brand-blue');
+            el.classList.add('bg-brand-pink', 'text-white', 'scale-105');
+            
+            currentQ1Selection = { element: el, text: itemText };
+        }
+
+        function placeQ1Item(zoneEl, zoneId) {
+            if (!currentQ1Selection) return;
+
+            // Check if zone has item
+            if (q1Answers[zoneId]) {
+                // Return old item to pool (visually)
+                // Simply overwritten in this simplified logic, or we could swap.
+                // Let's just overwrite for simplicity user flow
+                const oldText = q1Answers[zoneId];
+                // Reactivate old item button
+                document.querySelectorAll('.q1-item').forEach(i => {
+                    if (i.innerText.includes(oldText)) i.classList.remove('opacity-50', 'cursor-not-allowed');
+                });
+            }
+
+            // Update Logic
+            q1Answers[zoneId] = currentQ1Selection.text;
+
+            // Update Visuals Zone
+            const contentDiv = zoneEl.querySelector('.placed-content');
+            contentDiv.innerHTML = `<span class="py-1 px-3 bg-white rounded shadow text-sm border border-gray-200 block mt-2">${currentQ1Selection.text}</span>`;
+            
+            // Disable Source Button
+            currentQ1Selection.element.classList.add('opacity-50', 'cursor-not-allowed');
+            currentQ1Selection.element.classList.remove('bg-brand-pink', 'text-white', 'scale-105');
+            currentQ1Selection.element.classList.add('bg-yellow-200', 'text-brand-blue');
+            
+            // Reset Selection
+            currentQ1Selection = null;
+        }
+
+        function resetQ1() {
+            q1Answers = { early: null, mech: null, gen1: null, gen3: null };
+            document.querySelectorAll('#q1-container .placed-content').forEach(el => el.innerHTML = '');
+            document.querySelectorAll('.q1-item').forEach(el => {
+                el.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-brand-pink', 'text-white');
+                el.classList.add('bg-yellow-200', 'text-brand-blue');
+            });
+            currentQ1Selection = null;
+        }
+
+        // --- QUESTION 2 LOGIC (MATCHING) ---
+        function selectQ2Left(btn, id) {
+            // Clear previous left selection visuals
+            document.querySelectorAll('.q2-left').forEach(b => {
+               if(!q2Matches[b.getAttribute('onclick').match(/\d/)[0]]) { // Only if not matched
+                   b.classList.remove('ring-4', 'ring-brand-pink');
+               }
+            });
+            
+            // Highlight this
+            btn.classList.add('ring-4', 'ring-brand-pink');
+            currentQ2Left = { id: id, element: btn };
+        }
+
+        function selectQ2Right(btn, value) {
+            if (!currentQ2Left) {
+                alert("Hãy chọn ô bên TRÁI trước!");
+                return;
+            }
+
+            const leftId = currentQ2Left.id;
+            
+            // Check if this right value is already taken by another ID?
+            // Simplified: Overwrite logic
+            
+            // Store Match
+            q2Matches[leftId] = value;
+
+            // Apply Visual Color Coding to Pair
+            const colorIndex = (leftId - 1) % 4;
+            const bgClass = q2Colors[colorIndex];
+            const borderClass = q2BorderColors[colorIndex];
+
+            // Style Left
+            currentQ2Left.element.className = `q2-left w-full p-3 border-2 rounded-lg text-left font-bold transition ${bgClass} ${borderClass}`;
+            
+            // Style Right
+            // First clear this right button's specific styling if it was used before? (Complex, skip for MVP)
+            btn.className = `q2-right w-full p-3 border-2 rounded-lg text-left text-sm font-bold transition ${bgClass} ${borderClass}`;
+
+            // Reset Selection
+            currentQ2Left = null;
+        }
+
+        function resetQ2() {
+            q2Matches = {};
+            currentQ2Left = null;
+            // Reset Left Styles
+            document.querySelectorAll('.q2-left').forEach((btn, idx) => {
+                btn.className = "q2-left w-full p-3 border-2 border-brand-blue rounded-lg bg-white hover:bg-blue-50 text-left font-semibold transition";
+            });
+            // Reset Right Styles
+            document.querySelectorAll('.q2-right').forEach(btn => {
+                btn.className = "q2-right w-full p-3 border-2 border-gray-300 text-gray-600 rounded-lg bg-white hover:bg-gray-50 text-left text-sm font-semibold transition";
+            });
+        }
+
+        // --- GRADING LOGIC ---
+        function submitQuiz() {
+            let totalScore = 0;
+            let correctCount = 0;
+            const containers = {
+                q1: document.getElementById('q1-container'),
+                q2: document.getElementById('q2-container'),
+                q3: document.getElementById('q3-container'),
+                q4: document.getElementById('q4-container'),
+                q5: document.getElementById('q5-container')
+            };
+
+            // Reset visual grading
+            Object.values(containers).forEach(c => c.classList.remove('correct-box', 'wrong-box'));
+
+            // 1. Check Q1 (Drag Drop)
+            // Rules: Bàn tính -> early, Pascaline -> mech, ENIAC -> gen1, IC -> gen3
+            const q1Check = 
+                q1Answers.early === 'Bàn tính' &&
+                q1Answers.mech === 'Pascaline' &&
+                q1Answers.gen1 === 'ENIAC' &&
+                q1Answers.gen3 === 'IC';
+            
+            if (q1Check) {
+                totalScore += 4;
+                correctCount++;
+                containers.q1.classList.add('correct-box');
+            } else {
+                containers.q1.classList.add('wrong-box');
+            }
+
+            // 2. Check Q2 (Matching)
+            // Rules: 1-vacuum, 2-transistor, 3-ic, 4-vlsi
+            const q2Check = 
+                q2Matches[1] === 'vacuum' &&
+                q2Matches[2] === 'transistor' &&
+                q2Matches[3] === 'ic' &&
+                q2Matches[4] === 'vlsi';
+            
+            if (q2Check) {
+                totalScore += 4;
+                correctCount++;
+                containers.q2.classList.add('correct-box');
+            } else {
+                containers.q2.classList.add('wrong-box');
+            }
+
+            // 3. Check Q3 (Multiple Choice) -> D
+            const q3Val = document.querySelector('input[name="q3"]:checked')?.value;
+            if (q3Val === 'D') {
+                totalScore += 4;
+                correctCount++;
+                containers.q3.classList.add('correct-box');
+            } else {
+                containers.q3.classList.add('wrong-box');
+            }
+
+            // 4. Check Q4 (True/False)
+            // 1. Pascaline tax? -> True
+            // 2. Gen 2 uses IC? -> False (Uses Transistor)
+            // 3. Gen 5 AI/Human? -> True
+            // 4. ENIAC uses Transistor? -> False (Uses Vacuum)
+            const q4_1 = document.querySelector('input[name="q4_1"]:checked')?.value;
+            const q4_2 = document.querySelector('input[name="q4_2"]:checked')?.value;
+            const q4_3 = document.querySelector('input[name="q4_3"]:checked')?.value;
+            const q4_4 = document.querySelector('input[name="q4_4"]:checked')?.value;
+
+            const q4Check = (q4_1 === 'true' && q4_2 === 'false' && q4_3 === 'true' && q4_4 === 'false');
+            if (q4Check) {
+                totalScore += 4;
+                correctCount++;
+                containers.q4.classList.add('correct-box');
+            } else {
+                containers.q4.classList.add('wrong-box');
+            }
+
+            // 5. Check Q5 (Text)
+            // Logic: Check length > 20 chars and keywords indicating 2 examples (checking for comma or "và" or newlines)
+            const q5Text = document.getElementById('q5-answer').value.toLowerCase().trim();
+            // Basic heuristic for demo purposes
+            const hasLength = q5Text.length > 20;
+            const hasSeparator = q5Text.includes(',') || q5Text.includes(' và ') || q5Text.includes('\n') || q5Text.includes('.');
+            
+            if (hasLength && hasSeparator) {
+                totalScore += 4;
+                correctCount++;
+                containers.q5.classList.add('correct-box');
+            } else {
+                containers.q5.classList.add('wrong-box');
+                // Optional: Insert feedback?
+            }
+
+            // --- DISPLAY RESULTS ---
+            const name = document.getElementById('student-name').value;
+            const cls = document.getElementById('student-class').value;
+            document.getElementById('res-name').innerText = name;
+            document.getElementById('res-class').innerText = cls;
+            document.getElementById('res-score').innerText = totalScore;
+            document.getElementById('res-correct-count').innerText = `${correctCount}/5`;
+
+            let msg = "";
+            let percent = (totalScore / 20) * 100;
+            if (percent >= 90) msg = "Xuất sắc! 🎉";
+            else if (percent >= 70) msg = "Tốt! 👍";
+            else if (percent >= 50) msg = "Cần luyện thêm! 💪";
+            else msg = "Xem lại bài nhé! 📚";
+            
+            document.getElementById('res-message').innerText = msg;
+
+            // Show Modal
+            document.getElementById('result-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').classList.add('hidden');
+        }
+
+    </script>
+</body>
+</html>
